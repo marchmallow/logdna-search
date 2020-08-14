@@ -13,11 +13,17 @@ def loadConfig(filename):
     return logConfig
 
 # perform the actual search
-def getLogs(region, key, numHours, query):
+def getLogs(region, key, numHours, query, apps, hosts):
     url     = "https://api."+region+".logging.cloud.ibm.com/v1/export"
+
+
+    curl "https://api.us-south.logging.cloud.ibm.com/v1/export"
+
     params = {
         "from": datetime.timestamp(datetime.now())-(3600*int(numHours)),
         "to": datetime.timestamp(datetime.now()),
+        "apps": apps,
+        "hosts": hosts,
         "query": query,
         "size": "10000"
         }
@@ -50,11 +56,20 @@ if __name__== "__main__":
     elif (len(sys.argv)==4):
         numHours=sys.argv[2]
         query=sys.argv[3]
+    elif (len(sys.argv)==5):
+        numHours=sys.argv[2]
+        query=sys.argv[3]
+        apps=sys.argv[4]
+    elif (len(sys.argv)==6):
+        numHours=sys.argv[2]
+        query=sys.argv[3]
+        apps=sys.argv[4]
+        hosts=sys.argv[5]
     else:
         printHelp(sys.argv[0])
         exit()
 
     # Obtain the LogDNA logs
-    logs=getLogs(logConfig["region"],logConfig["key"],numHours, query)
+    logs=getLogs(logConfig["region"],logConfig["key"],numHours, query, apps, hosts)
     # Because the result are loglines (JSONL), we need to dump each one individually
     [print (json.dumps(jsonl, indent=2)) for jsonl in logs]
